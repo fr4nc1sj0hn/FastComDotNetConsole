@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -9,6 +10,7 @@ namespace Fast_Com
 {
     class Program
     {
+        private static int[] results;
         static void Main(string[] args)
         {
             // A simple source for demonstration purposes. Modify this path as necessary.
@@ -35,9 +37,8 @@ namespace Fast_Com
             Console.WriteLine("Processing {0} on thread {1}", args, Thread.CurrentThread.ManagedThreadId);
             System.Threading.Thread.Sleep(5000);
         }
-        public static void MyDownloadFile(Uri url)
+        public static void MyDownloadFile(Uri url, int index)
         {
-            int totalbytes = 0;
             const int BUFFER_SIZE = 16 * 1024;
             var req = WebRequest.Create(url);
             req.Credentials = CredentialCache.DefaultCredentials;
@@ -47,13 +48,24 @@ namespace Fast_Com
                 {
                     var buffer = new byte[BUFFER_SIZE];
                     int bytesRead;
-                    do
+                    Stopwatch s = new Stopwatch();
+                    s.Start();
+                    while (s.Elapsed < TimeSpan.FromSeconds(3))
                     {
                         bytesRead = responseStream.Read(buffer, 0, BUFFER_SIZE);
-                        totalbytes += bytesRead;
+                        results[index] += bytesRead;
+                    }
+
+                    s.Stop();
+                    Console.WriteLine("Downloaded: {0} Kilobytes",results[index]/1024.0);
+                    Console.WriteLine("Speed: {0} Kbps", results[index]*8/3.0/1024.0);
+                    /*do
+                    {
+                        bytesRead = responseStream.Read(buffer, 0, BUFFER_SIZE);
+                        results[index] += bytesRead;
                         //outputFileStream.Write(buffer, 0, bytesRead);
-                        Console.WriteLine("Total Bytes {0} from thread {1}", totalbytes, Thread.CurrentThread.ManagedThreadId);
-                    } while (bytesRead > 0);
+                        //Console.WriteLine("Total Bytes {0} from {1} Index {2}", results[index], url, index);
+                    } while (bytesRead > 0);*/
 
                 }
             }
@@ -97,6 +109,7 @@ namespace Fast_Com
                     break;
                 }
             }*/
+            int count = 0;
             Console.WriteLine(token);
             finalurl = baseurl + "netflix/speedtest?https=true&token=" + token + "&urlCount=3";
             using (WebClient wc = new WebClient())
@@ -104,7 +117,7 @@ namespace Fast_Com
                 var json = wc.DownloadString(finalurl);
                 //Console.WriteLine(json);
 
-                int count = json.Split("url").Length - 1;
+                count = json.Split("url").Length - 1;
                 links = new Uri[count];
                 //Console.WriteLine(count);
                 string urlparsed = "";
@@ -122,7 +135,20 @@ namespace Fast_Com
                 }
 
             }
-            Console.WriteLine(links[0].ToString());
+            results = new int[count];
+            MyDownloadFile(links[0], 0);
+            
+
+            //Thread.Sleep(2000);
+            //int baseline = results[0];
+            //Console.WriteLine("Initial (kbps) {0}", baseline);
+            //Thread.Sleep(5000);
+            //Console.WriteLine("Now (kbps) {0}", baseline);
+            //double speed = (results[0] - baseline) / 5.0;
+
+            //Console.WriteLine("Speed (kbps) {0}", speed);
+
+            //Console.WriteLine(links[0].ToString());
         }
         public static void GetIpAddressList(String hostString)
         {
