@@ -48,7 +48,7 @@ namespace fast_com
                 }
             }
         }
-        private void OpenJSFile()
+        private void OpenJSFile(bool verbose = false)
         {
             string jsfileurl = "";
             foreach (var line in fastcomhtmlresult.Split("\n"))
@@ -61,9 +61,12 @@ namespace fast_com
             }
             using (WebClient client = new WebClient())
             {
-                try {
+                try
+                {
                     jsfile = client.DownloadString(url + jsfileurl);
-                }catch (WebException ex)
+                    if (verbose) Console.WriteLine(jsfile);
+                }
+                catch (WebException ex)
                 {
                     Console.WriteLine("An error has occured or no connection is detected.\n\nError Message:\n{0}", ex.Message);
                     return;
@@ -128,7 +131,7 @@ namespace fast_com
             }
             Console.WriteLine("\n-------------------------------------------");
             Console.WriteLine("\nAverage Speed: {0} Kpbs", Math.Round(RunningTotal/10.0,2));
-            Console.WriteLine("\nHighest Speed: {0} Kpbs", Math.Round(HighestSpeed,2));
+            Console.WriteLine("Highest Speed: {0} Kpbs", Math.Round(HighestSpeed,2));
         }
         private void DownloadTestFile(Uri url,int trial)
         {

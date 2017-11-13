@@ -1,4 +1,5 @@
 ﻿using fast_com;
+using Microsoft.Extensions.CommandLineUtils;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -11,15 +12,33 @@ namespace Fast_Com
 {
     class Program
     {
-        private static int[] results;
         static void Main(string[] args)
         {
-            Console.WriteLine("Connecting...");
+            
+            CommandLineApplication commandLineApplication =
+                new CommandLineApplication(throwOnUnexpectedArg: false);
 
-            FastCodeApp fastapp = new FastCodeApp();
-            fastapp.Run();
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
+            commandLineApplication.Command("SpeedTest", (command) =>
+            {
+                command.Description = "This utiliy measures Internet Speed using Fast.com API.\n No arguments are required\n";
+                command.ExtendedHelpText = "Usage: dotnet FastComDotNetConsole.dll SpeedTest";
+                command.HelpOption("-?|-h|--help");
+                
+
+                command.OnExecute(() =>
+                {
+
+                    Console.WriteLine("Connecting...");
+
+                    FastCodeApp fastapp = new FastCodeApp();
+                    fastapp.Run();
+                    Console.WriteLine("Press any key to exit.");
+                    Console.ReadKey();
+
+                    return 0;
+                });
+            });
+            commandLineApplication.Execute(args);
         }
     }
 }
