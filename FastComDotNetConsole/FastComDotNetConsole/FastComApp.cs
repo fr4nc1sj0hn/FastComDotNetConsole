@@ -113,7 +113,6 @@ namespace fast_com
                     Console.WriteLine("An error has occured or no connection is detected.\n\nError Message:\n{0}", ex.Message);
                     return;
                 }
-
             }
         }
         private void ExecuteDownloads()
@@ -121,7 +120,7 @@ namespace fast_com
             int i = 0;
             foreach(var uri in Links)
             {
-                Console.WriteLine("Test File {0}:\n{1}\n", i, Links[i]);
+                Console.WriteLine("Test File {0}:\n{1}\n", i + 1, Links[i]);
                 Console.WriteLine("-------------------------------------------");
                 for (var j = 1; j <= 5; j++)
                 {
